@@ -2,10 +2,10 @@ package com.inputa.next.feature.vocabulary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.inputa.next.core.data.LingqApi
 import com.inputa.next.core.data.Meaning
 import com.inputa.next.core.data.SessionStore
 import com.inputa.next.core.data.VocabCard
+import com.inputa.next.core.data.WordMeanings
 import com.inputa.next.core.data.local.LocalWordStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ enum class VocabFilter(val label: String) {
  */
 @HiltViewModel
 class VocabularyViewModel @Inject constructor(
-    private val api: LingqApi,
+    private val wordMeanings: WordMeanings,
     private val session: SessionStore,
     private val localWords: LocalWordStore,
 ) : ViewModel() {
@@ -83,10 +83,13 @@ class VocabularyViewModel @Inject constructor(
             it.copy(selected = card, meanings = emptyList(), meaningsLoading = true)
         }
         viewModelScope.launch {
-            val meanings = runCatching { api.meanings(language, card.term) }.getOrDefault(emptyList())
+            val entries = wordMeanings.dictionary(language, card.term).toMutableList()
+            wordMeanings.translation(language, card.term)?.let { text ->
+                if (entries.none { it.text == text }) entries += Meaning(text, null)
+            }
             _state.update {
                 if (it.selected?.id == card.id) {
-                    it.copy(meanings = meanings, meaningsLoading = false)
+                    it.copy(meanings = entries, meaningsLoading = false)
                 } else {
                     it
                 }

@@ -157,6 +157,19 @@ private val ZH: Map<String, String> = mapOf(
     "Play from here" to "从这里播放",
     "Looking up…" to "正在查询…",
     "No translation available" to "暂无释义",
+    "Sentence" to "句子",
+    "Translating…" to "正在翻译…",
+    "Translation language" to "释义语言",
+    "LingQ dictionary entries stay as they are; the last line of the popup is translated into this language." to
+        "LingQ 的词典释义保持原样，只有弹窗最后一行会翻译成这种语言。",
+    "Translate the word" to "翻译单词",
+    "Add a machine translation of the tapped word as the last line, in the language above." to
+        "在弹窗最后一行显示这个单词的机器翻译（语言见上一项）。",
+    "Auto" to "自动",
+    "Chinese" to "中文",
+    "English" to "英语",
+    "Japanese" to "日语",
+    "Korean" to "韩语",
     "Ignore" to "忽略",
     "Known" to "已知",
 

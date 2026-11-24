@@ -2,10 +2,10 @@ package com.inputa.next.feature.review
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.inputa.next.core.data.LingqApi
 import com.inputa.next.core.data.Meaning
 import com.inputa.next.core.data.SessionStore
 import com.inputa.next.core.data.VocabCard
+import com.inputa.next.core.data.WordMeanings
 import com.inputa.next.core.data.local.LocalWordStore
 import com.inputa.next.core.data.local.SettingsStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 /** 复习池完全来自本机词库；LingQ 只用于查释义。 */
 @HiltViewModel
 class ReviewViewModel @Inject constructor(
-    private val api: LingqApi,
+    private val wordMeanings: WordMeanings,
     private val session: SessionStore,
     private val localWords: LocalWordStore,
     private val settings: SettingsStore,
@@ -76,10 +76,13 @@ class ReviewViewModel @Inject constructor(
         val card = _state.value.current ?: return
         _state.update { it.copy(revealed = true, meanings = emptyList(), meaningsLoading = true) }
         viewModelScope.launch {
-            val meanings = runCatching { api.meanings(language, card.term) }.getOrDefault(emptyList())
+            val entries = wordMeanings.dictionary(language, card.term).toMutableList()
+            wordMeanings.translation(language, card.term)?.let { text ->
+                if (entries.none { it.text == text }) entries += Meaning(text, null)
+            }
             _state.update {
                 if (it.current?.id == card.id) {
-                    it.copy(meanings = meanings, meaningsLoading = false)
+                    it.copy(meanings = entries, meaningsLoading = false)
                 } else {
                     it
                 }
